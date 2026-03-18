@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_recurring_subscription_search" model="ir.ui.view">
+        <field name="name">recurring.subscription.search</field>
+        <field name="model">recurring.subscription</field>
+        <field name="arch" type="xml">
+            <search string="Recurring Subscription">
+                <field name="name"/>
+                <field name="establishment_id"/>
+                <field name="product_id"/>
+
+                <filter string="By Establishment Id"
+                        name="establishment_id"
+                        domain="[('establishment_id','!=',False)]"/>
+                <filter string="By Product"
+                        name="product_id"
+                        domain="[('product_id','!=',False)]"/>
+                <filter string="By Date"
+                        name="date"
+                        domain="[('date','!=',False)]"/>
+                <filter string="By Customer"
+                        name="customer_id"
+                        domain="[('customer_id','!=',False)]"/>
+                <filter string="By State"
+                        name="state"
+                        domain="[('state','in',['confirm','done'])]"/>
+                <filter string="By Product"
+                        name="product_id"
+                        domain="[('product_id','!=',False)]"/>
+
+
+                <filter string="Product"
+                        name="product_id"
+                        context="{'group_by':'product_id'}"/>
+                <filter string="Establishment Id"
+                        name="establishment_id"
+                        context="{'group_by':'establishment_id'}"/>
+
+
+            </search>
+        </field>
+    </record>
+
+
+    <record id="view_recurring_subscription_list" model="ir.ui.view">
+        <field name="name">recurring.subscription.list</field>
+        <field name="model">recurring.subscription</field>
+
+        <field name="arch" type="xml">
+            <list string="Recurring Subscriptions">
+                <field name="order_id"/>
+                <field name="name"/>
+                <field name="establishment_id"/>
+                <field name="date"/>
+                <field name="due_date"/>
+                <field name="customer_id"/>
+                <field name="product_id"/>
+                <field name="recurring_amount"/>
+                <field name="state"/>
+            </list>
+        </field>
+
+    </record>
+
+    <record id="view_recurring_subscription_form" model="ir.ui.view">
+        <field name="name">recurring.subscription.form</field>
+        <field name="model">recurring.subscription</field>
+
+        <field name="arch" type="xml">
+            <form string="Recurring Subscription">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object" status="draft" class="btn-primary"
+                            invisible="state != 'draft'"
+                    />
+                    <button name="action_cancel" string="Cancel" type="object"
+                            status="draft,confirm" class="btn-danger"
+                            invisible="state not in ['draft', 'confirm']"
+                    />
+
+
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,done,cancel"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Basic Information">
+                            <field name="order_id"/>
+                            <field name="name"/>
+
+                            <field name="establishment_id"/>
+                            <field name="is_lead"/>
+                        </group>
+
+                        <group string="Dates">
+                            <field name="date"/>
+                            <field name="due_date"/>
+                            <field name="billing_schedule_id"/>
+                            <field name="next_billing"/>
+
+                        </group>
+
+
+                    </group>
+
+                    <group>
+                        <group string="Subscription Details">
+                            <field name="customer_id"/>
+                            <field name="company_id"/>
+
+                            <field name="product_id"/>
+                            <field name="currency_id" invisible="1"/>
+
+                            <field name="recurring_amount"/>
+
+
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Subscription Credits">
+                            <field name="credit_ids">
+                                <list>
+                                    <field name="partner_id"/>
+                                    <field name="credit_amount"/>
+                                    <field name="period_date"/>
+                                    <field name="due_date"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Description">
+                            <group>
+                                <field name="description" nolabel="1"/>
+                            </group>
+
+                        </page>
+
+                        <page string="Terms and Conditions">
+                            <group>
+                                <field name="terms_and_conditions" nolabel="1"/>
+                            </group>
+                        </page>
+
+
+
+
+
+                    </notebook>
+
+
+                </sheet>
+                <chatter/>
+
+            </form>
+        </field>
+
+    </record>
+
+
+    <record id="action_recurring_subscription" model="ir.actions.act_window">
+        <field name="name">Recurring Subscriptions</field>
+        <field name="res_model">recurring.subscription</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+
+</odoo>

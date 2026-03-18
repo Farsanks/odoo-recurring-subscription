@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="sequence_recurring_subscription" model="ir.sequence">
+        <field name="name">Recurring Subscription</field>
+        <field name="code">recurring.subscription</field>
+        <field name="prefix">RS</field>
+        <field name="padding">10</field>
+        <field name="number_increment">1</field>
+        <field name="number_next">1</field>
+    </record>
+
+    <record id="product_subscription_credit" model="product.template">
+        <field name="name">Subscription Credit</field>
+        <field name="default_code">SubscriptionCredit</field>
+        <field name="type">service</field>
+    </record>
+</odoo>

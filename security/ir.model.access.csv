@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_recurring_subscription,access.recurring.subscription,model_recurring_subscription,base.group_user,1,1,1,1
+access_recurring_subscription_credit,access.recurring.subscription.credit,model_recurring_subscription_credit,base.group_user,1,1,1,1
+access_billing_schedule,access.billing.schedule,model_billing_schedule,base.group_user,1,1,1,1
+access_partner_account_id,access.partner.account.id,model_partner_account_id,base.group_user,1,1,1,1
+
