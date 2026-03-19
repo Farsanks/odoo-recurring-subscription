@@ -21,7 +21,7 @@ class RecurringSubscription(models.Model):
     due_date = fields.Date(string='Due Date', default=fields.Date.today() + timedelta(days=15))
     next_billing = fields.Datetime(string='Next Billing')
     is_lead = fields.Boolean(string='Is Lead')
-    customer_id = fields.Many2one('res.partner', string='Customer', required=True)
+    customer_id = fields.Many2one('res.partner', string='Customer')
     company_id = fields.Many2one('res.company', string='Company',
                                  default=lambda self: self.env.user.company_id, required=True)
     description = fields.Char(string='Description')
@@ -44,9 +44,9 @@ class RecurringSubscription(models.Model):
         domain=[('is_valid_period', '=', True)]
     )
     billing_schedule_ids = fields.One2many(
-        'billing.schedule','recurring_subscription_id', string='Billing Schedules',
+        'billing.schedule', 'recurring_subscription_id', string='Billing Schedules',
     )
-    billing_schedule_id = fields.Many2one('billing.schedule',string='Billing Schedule')
+    billing_schedule_id = fields.Many2one('billing.schedule', string='Billing Schedule')
 
     _unique_name = models.Constraint(
         'UNIQUE(name)',
@@ -69,9 +69,11 @@ class RecurringSubscription(models.Model):
             if record.establishment_id:
                 pattern = r'^(?=(?:.*[A-Za-z]){3})(?=(?:.*\d){3})(?=(?:.*[^A-Za-z\d]){2}).{8}$'
                 if not re.match(pattern, record.establishment_id):
+                    self.establishment_id = None
                     raise ValidationError(
                         "Establishment Id must contain 3 alphabets, 3 numbers and 2 special characters."
                     )
+
 
     def action_confirm(self):
         """used for setting the state to confirm"""
@@ -80,3 +82,18 @@ class RecurringSubscription(models.Model):
     def action_cancel(self):
         """used for setting the state to cancel"""
         self.write({'state': 'cancel'})
+
+    @api.onchange('establishment_id')
+    def _onchange_establishment_id(self):
+        """Find partner by establishment id"""
+
+        if self.establishment_id:
+            partner = self.env['res.partner'].search([('establishment_id', '=', self.establishment_id)], limit=1)
+
+            if partner:
+                self.update({'customer_id': partner.id})
+            else:
+                self.customer_id = False
+                raise ValidationError("Not found a partner with this establishment id.")
+        else:
+            self.customer_id = False

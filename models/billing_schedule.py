@@ -60,7 +60,8 @@ class BillingSchedule(models.Model):
         """used to compute the credit amount"""
         for record in self:
             if record.recurring_subscription_ids:
-                credits = self.env['recurring.subscription.credit'].search([('recurring_subscription_id','in',record.recurring_subscription_ids.ids),('state','=','confirmed')])
+                credits = self.env['recurring.subscription.credit'].search([
+                    ('recurring_subscription_id','in',record.recurring_subscription_ids.ids),('state','=','confirmed')])
                 record.update({'credit_ids':[fields.Command.set(credits.ids)]})
             else:
                 record.update({'credit_ids':[fields.Command.clear()]})
@@ -71,10 +72,11 @@ class BillingSchedule(models.Model):
         for record in self:
             if record.recurring_subscription_ids:
                 credits = (self.env['recurring.subscription.credit'].search
-                           ([('recurring_subscription_id','in',record.recurring_subscription_ids.ids),('state','=','confirmed')]))
+                           ([('recurring_subscription_id','in',record.recurring_subscription_ids.ids),
+                             ('recurring_subscription_id.state','=','confirm')]))
                 record.update({
                     'total_credit_amount':sum(credits.mapped('credit_amount')),
                 })
             else:
-                record.update({'total_credit_amount':[(0,0)]})
+                record.update({'total_credit_amount':0.0})
 
