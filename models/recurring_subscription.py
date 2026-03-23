@@ -8,7 +8,6 @@ from datetime import timedelta
 from odoo.exceptions import ValidationError
 import re
 
-
 class RecurringSubscription(models.Model):
     _name = 'recurring.subscription'
     _description = 'Recurring Subscription'
@@ -21,7 +20,7 @@ class RecurringSubscription(models.Model):
     due_date = fields.Date(string='Due Date', default=fields.Date.today() + timedelta(days=15))
     next_billing = fields.Datetime(string='Next Billing')
     is_lead = fields.Boolean(string='Is Lead')
-    customer_id = fields.Many2one('res.partner', string='Customer')
+    customer_id = fields.Many2one('res.partner', string='Customer',required=True)
     company_id = fields.Many2one('res.company', string='Company',
                                  default=lambda self: self.env.user.company_id, required=True)
     description = fields.Char(string='Description')
@@ -32,7 +31,7 @@ class RecurringSubscription(models.Model):
         string='Currency',
         default=lambda self: self.env.ref('base.USD')
     )
-    recurring_amount = fields.Monetary(string='Recurring Amount')
+    recurring_amount = fields.Monetary(string='Recurring Amount',default=1)
     state = fields.Selection([('draft', 'Draft'),
                               ('confirm', 'Confirmed'),
                               ('done', 'Done'),
@@ -62,18 +61,6 @@ class RecurringSubscription(models.Model):
 
         return super().create(vals_list)
 
-    @api.constrains('establishment_id')
-    def _check_establishment_id(self):
-        """used to validate the establishment id"""
-        for record in self:
-            if record.establishment_id:
-                pattern = r'^(?=(?:.*[A-Za-z]){3})(?=(?:.*\d){3})(?=(?:.*[^A-Za-z\d]){2}).{8}$'
-                if not re.match(pattern, record.establishment_id):
-                    self.establishment_id = None
-                    raise ValidationError(
-                        "Establishment Id must contain 3 alphabets, 3 numbers and 2 special characters."
-                    )
-
 
     def action_confirm(self):
         """used for setting the state to confirm"""
@@ -83,17 +70,33 @@ class RecurringSubscription(models.Model):
         """used for setting the state to cancel"""
         self.write({'state': 'cancel'})
 
+    @api.constrains('establishment_id')
+    def _check_establishment_id(self):
+        """used to validate the establishment id"""
+        for record in self:
+            if record.establishment_id:
+                pattern = r'^(?=(?:.*[A-Za-z]){3})(?=(?:.*\d){3})(?=(?:.*[^A-Za-z\d]){2}).{8}$'
+                if not re.match(pattern, record.establishment_id):
+                    raise ValidationError(
+                        "Establishment Id must contain 3 alphabets, 3 numbers and 2 special characters."
+                    )
+
     @api.onchange('establishment_id')
     def _onchange_establishment_id(self):
         """Find partner by establishment id"""
 
         if self.establishment_id:
             partner = self.env['res.partner'].search([('establishment_id', '=', self.establishment_id)], limit=1)
-
             if partner:
-                self.update({'customer_id': partner.id})
+                print(partner)
+                self.write({'customer_id': partner.id})
             else:
-                self.customer_id = False
-                raise ValidationError("Not found a partner with this establishment id.")
-        else:
-            self.customer_id = False
+                self.write({'customer_id': False})
+                return {
+                    'warning':{
+                        'title':'No partner found',
+                        'message':'No partner found',
+                    }
+                }
+
+

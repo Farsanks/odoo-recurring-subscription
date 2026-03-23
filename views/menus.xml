@@ -24,5 +24,10 @@
               parent="menu_recurring_subscription_root"
               action="action_billing_schedule"
               sequence="30"/>
+    <menuitem id="menu_partners_with_account"
+              name="Partners With Account ID"
+              parent="menu_recurring_subscription_root"
+              action="action_res_partner_with_account"
+              sequence="40"/>
 
 </odoo>
