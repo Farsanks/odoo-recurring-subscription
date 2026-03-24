@@ -12,10 +12,22 @@
         </field>
     </record>
 
-    <record id="action_res_partner_with_account" model="ir.actions.act_window">
+    <record id="view_partner_account_id_list" model="ir.ui.view">
+        <field name="name">partner.account.id.list</field>
+        <field name="model">partner.account.id</field>
+        <field name="arch" type="xml">
+            <list string="Partners With Account ID" create="0">
+                <field name="partner_id"/>
+                <field name="account_id"/>
+            </list>
+        </field>
+    </record>
+
+
+    <record id="action_partner_account_id" model="ir.actions.act_window">
         <field name="name">Partners With Account ID</field>
-        <field name="res_model">res.partner</field>
+        <field name="res_model">partner.account.id</field>
         <field name="view_mode">list,form</field>
-        <field name="domain">[('account_id','!=',False)]</field>
+        <field name="view_id" ref="view_partner_account_id_list"/>
     </record>
 </odoo>

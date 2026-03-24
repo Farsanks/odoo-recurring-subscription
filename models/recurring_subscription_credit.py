@@ -6,6 +6,9 @@ from datetime import timedelta
 from odoo.exceptions import ValidationError
 import re
 
+from odoo.orm.decorators import ondelete
+
+
 class RecurringSubscriptionCredit(models.Model):
     _name = 'recurring.subscription.credit'
     _description = 'Recurring Subscription Credit'

@@ -34,6 +34,7 @@ class ResPartner(models.Model):
             account_id_value = self._generate_account_id()
             account = self.env['partner.account.id'].create({
                 'account_id': account_id_value,
+                'partner_id': record.id,
             })
             record.write({'account_id': account.id})
         return records

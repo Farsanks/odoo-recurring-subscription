@@ -59,6 +59,12 @@ class RecurringSubscription(models.Model):
             if vals.get('order_id', 'New') == 'New':
                 vals['order_id'] = self.env['ir.sequence'].next_by_code('recurring.subscription')
 
+            if vals.get('establishment_id') and not vals.get('customer_id'):
+                partner = (self.env['res.partner']
+                           .search([('establishment_id', '=', vals.get('establishment_id'))], limit=1))
+                if partner:
+                    vals['customer_id'] = partner.id
+
         return super().create(vals_list)
 
 
@@ -86,7 +92,8 @@ class RecurringSubscription(models.Model):
         """Find partner by establishment id"""
 
         if self.establishment_id:
-            partner = self.env['res.partner'].search([('establishment_id', '=', self.establishment_id)], limit=1)
+            partner = (self.env['res.partner'].
+                       search([('establishment_id', '=', self.establishment_id)], limit=1))
             if partner:
                 print(partner)
                 self.write({'customer_id': partner.id})

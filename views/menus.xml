@@ -27,7 +27,7 @@
     <menuitem id="menu_partners_with_account"
               name="Partners With Account ID"
               parent="menu_recurring_subscription_root"
-              action="action_res_partner_with_account"
+              action="action_partner_account_id"
               sequence="40"/>
 
 </odoo>

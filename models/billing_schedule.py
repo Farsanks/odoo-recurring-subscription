@@ -3,6 +3,8 @@
 from email.policy import default
 
 from odoo import api, fields, models
+from odoo.orm.decorators import ondelete
+
 
 class BillingSchedule(models.Model):
     _name = 'billing.schedule'

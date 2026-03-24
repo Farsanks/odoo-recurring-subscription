@@ -9,7 +9,8 @@ class PartnerAccountId(models.Model):
     _description = 'Partner Account ID'
     _rec_name = 'account_id'
 
-    account_id = fields.Char(string='Account ID',required=True)
+    account_id = fields.Char(string='Account ID',required=True,readonly=True)
+    partner_id = fields.Many2one(comodel_name='res.partner',string='Customer', ondelete='cascade',readonly=True)
     _unique_account_id = models.Constraint('UNIQUE(account_id)','Account ID must be unique')
 
     @api.constrains('account_id')
