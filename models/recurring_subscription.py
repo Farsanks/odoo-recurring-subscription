@@ -5,7 +5,7 @@ from email.policy import default
 
 from odoo import models, fields, api
 from datetime import timedelta
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError,UserError
 import re
 
 class RecurringSubscription(models.Model):
@@ -52,18 +52,12 @@ class RecurringSubscription(models.Model):
         'A Recurring Subscription with this name already exists!'
     )
 
-    @api.model_create_multi
+
     def create(self, vals_list):
         """used for setting the sequence number"""
         for vals in vals_list:
             if vals.get('order_id', 'New') == 'New':
                 vals['order_id'] = self.env['ir.sequence'].next_by_code('recurring.subscription')
-
-            if vals.get('establishment_id') and not vals.get('customer_id'):
-                partner = (self.env['res.partner']
-                           .search([('establishment_id', '=', vals.get('establishment_id'))], limit=1))
-                if partner:
-                    vals['customer_id'] = partner.id
 
         return super().create(vals_list)
 
@@ -76,6 +70,22 @@ class RecurringSubscription(models.Model):
         """used for setting the state to cancel"""
         self.write({'state': 'cancel'})
 
+    @api.onchange('establishment_id')
+    def _onchange_establishment_id(self):
+        """Find partner by establishment id"""
+
+        if self.establishment_id:
+            partner = (self.env['res.partner'].
+                       search([('establishment_id', '=', self.establishment_id)], limit=1))
+            if not partner:
+                raise ValidationError("not valid ")
+
+            else:
+                self.write({'customer_id': partner.id})
+
+
+
+
     @api.constrains('establishment_id')
     def _check_establishment_id(self):
         """used to validate the establishment id"""
@@ -84,26 +94,14 @@ class RecurringSubscription(models.Model):
                 pattern = r'^(?=(?:.*[A-Za-z]){3})(?=(?:.*\d){3})(?=(?:.*[^A-Za-z\d]){2}).{8}$'
                 if not re.match(pattern, record.establishment_id):
                     raise ValidationError(
-                        "Establishment Id must contain 3 alphabets, 3 numbers and 2 special characters."
+                        "Please enter a valid establishment id with correct format"
                     )
+                partner = (self.env['res.partner'].
+                           search([('establishment_id', '=',record.establishment_id)], limit=1))
+                if not partner:
+                    raise ValidationError("Please give a valid establishment id")
 
-    @api.onchange('establishment_id')
-    def _onchange_establishment_id(self):
-        """Find partner by establishment id"""
 
-        if self.establishment_id:
-            partner = (self.env['res.partner'].
-                       search([('establishment_id', '=', self.establishment_id)], limit=1))
-            if partner:
-                print(partner)
-                self.write({'customer_id': partner.id})
-            else:
-                self.write({'customer_id': False})
-                return {
-                    'warning':{
-                        'title':'No partner found',
-                        'message':'No partner found',
-                    }
-                }
+
 
 

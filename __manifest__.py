@@ -9,7 +9,7 @@
     'website': 'https://www.farsan.com/',
     'category': 'Subscription',
 
-    'depends': ['base', 'product','mail','contacts','crm'],
+    'depends': ['base', 'product','mail','contacts','crm','account'],
 
     'data': [
         'data/sequence_data.xml',

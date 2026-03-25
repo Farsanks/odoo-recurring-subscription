@@ -3,6 +3,7 @@
 from email.policy import default
 
 from odoo import api, fields, models
+from odoo.exceptions import UserError
 from odoo.orm.decorators import ondelete
 
 
@@ -82,3 +83,21 @@ class BillingSchedule(models.Model):
             else:
                 record.update({'total_credit_amount':0.0})
 
+    def action_manual_billing(self):
+        """used for creating the invoice"""
+        print("Hi")
+        self.ensure_one()
+        for subscription in self.recurring_subscription_ids:
+            invoice = self.env['account.move'].create({
+                'move_type':'out_invoice',
+                'partner_id':subscription.customer_id.id,
+                'invoice_line_ids':[
+                    fields.Command.create({
+                        'product_id':subscription.product_id.id,
+                        'quantity':1,
+                        'price_unit':subscription.recurring_amount,
+                    })
+                ]
+            })
+
+    
