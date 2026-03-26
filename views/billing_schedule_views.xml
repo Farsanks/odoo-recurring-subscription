@@ -21,18 +21,31 @@
         <field name="arch" type="xml">
             <form string="Billing Schedule">
                 <header>
+
                     <button name="action_manual_billing"
                             string="Billing"
                             type="object" class="btn-primary"
-                            confirm="Are you sure you want to create billing?"/>
+                            />
                 </header>
                 <sheet>
+                    <div name="button_box" position="inside">
+                        <button class="oe_stat_button" type="object" icon="fa-check"
+                                name="action_view_invoices" invisible="0">
+                            <field name="invoice_count" string="Invoices" widget="statinfo"/>
+                        </button>
+                        <button class="oe_stat_button"
+                                type="object"
+                                icon="fa-refresh"
+                                name="action_view_recurring_subscriptions">
+                            <field name="recurring_subscription_count" string="Subscriptions" widget="statinfo"/>
+                        </button>
+                    </div>
                     <group>
                         <group string="Basic Information">
                             <field name="name"/>
                             <field name="simulation"/>
                             <field name="period"/>
-                            <field name="active"/>
+                            <field name="active" invisible="1"/>
                             <field name="currency_id" invisible="1"/>
                             <field name="total_credit_amount"/>
                         </group>
@@ -46,14 +59,6 @@
                     </group>
 
 
-                    <div name="button_box" position="inside">
-                        <button class="oe_stat_button"
-                                type="object"
-                                icon="fa-refresh"
-                                name="action_view_recurring_subscriptions">
-                            <field name="recurring_subscription_count" string="Subscriptions" widget="statinfo"/>
-                        </button>
-                    </div>
                     <notebook>
                         <page string="Credits">
                             <field name="credit_ids">

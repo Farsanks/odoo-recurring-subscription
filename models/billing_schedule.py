@@ -18,7 +18,7 @@ class BillingSchedule(models.Model):
     period = fields.Date(string='Period',tracking=True)
     restrict_customer_ids = fields.Many2many('res.partner',string='Restrict Customers',
                                              tracking=True,compute='_compute_restrict_customer_ids',store=True)
-    active = fields.Boolean(string='Active')
+    active = fields.Boolean(string='Active',default=True)
     recurring_subscription_ids = fields.Many2many('recurring.subscription',
                                                   string='Recurring Subscriptions',tracking=True)
     total_credit_amount = fields.Monetary(string='Total Credit Amount',compute='_compute_total_credit_amount',store=True)
@@ -87,6 +87,7 @@ class BillingSchedule(models.Model):
         """used for creating the invoice"""
         print("Hi")
         self.ensure_one()
+        credit_product = self.env.ref('recurring.subscription.subscription_credit')
         for subscription in self.recurring_subscription_ids:
             invoice = self.env['account.move'].create({
                 'move_type':'out_invoice',
@@ -100,4 +101,44 @@ class BillingSchedule(models.Model):
                 ]
             })
 
-    
+        credit = self.env['recurring.subscription.credit'].search([('recurring_subscription_id','=',subscription.id),
+                                                                   ('state','=','confirmed'),('credit_amount','=',subscription.recurrring_amount,)],
+                                                                   order='id asc',limit=1)
+
+
+        if credit:
+            invoice.write({
+                    'invoice_line_ids':[
+                        fields.Command.create({
+                            'product_id': credit_product.id,
+                            'quantity': 1,
+                            'price_unit':-credit.credit_amount,
+                            'name':'Credit Applied',
+                        })
+                    ]
+                })
+        self.write({"active":False})
+    invoice_count = fields.Integer(string='Invoices',compute='_compute_invoice_count')
+
+    @api.depends('recurring_subscription_ids')
+    def _compute_invoice_count(self):
+        """used to compute the invoice count"""
+        for record in self:
+            invoices = self.env['account.move'].search([('partner_id','in',
+                                                         record.recurring_subscription_ids.mapped('customer_id').ids),
+                                ('move_type','=','out_invoice')])
+            record.update({'invoice_count':len(invoices)})
+
+    def action_view_invoices(self):
+        """used for seeing the invoices"""
+        self.ensure_one()
+        return {
+            'name': 'Invoices',
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'view_mode': 'list,form',
+            'domain':[
+                ('partner_id','in',self.recurring_subscription_ids.mapped('customer_id').ids),
+                ('move_type','=','out_invoice'),
+            ],
+        }
