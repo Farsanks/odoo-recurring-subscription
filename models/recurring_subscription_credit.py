@@ -19,7 +19,7 @@ class RecurringSubscriptionCredit(models.Model):
     recurring_subscription_id = fields.Many2one('recurring.subscription',string='Recurring Subscription'
                                                 ,required=True)
     partner_id = fields.Many2one('res.partner',string='Customer',
-                                 related='recurring_subscription_id.customer_id')
+                                 related='recurring_subscription_id.partner_id')
     company_id = fields.Many2one('res.company',string='Company',
                                  related='recurring_subscription_id.company_id')
     currency_id = fields.Many2one(

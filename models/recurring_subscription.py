@@ -3,9 +3,9 @@
 
 from email.policy import default
 
-from odoo import models, fields, api
+from odoo import models, fields, api,_
 from datetime import timedelta
-from odoo.exceptions import ValidationError,UserError
+from odoo.exceptions import ValidationError
 import re
 
 class RecurringSubscription(models.Model):
@@ -20,7 +20,7 @@ class RecurringSubscription(models.Model):
     due_date = fields.Date(string='Due Date', default=fields.Date.today() + timedelta(days=15))
     next_billing = fields.Datetime(string='Next Billing')
     is_lead = fields.Boolean(string='Is Lead')
-    customer_id = fields.Many2one('res.partner', string='Customer',required=True)
+    partner_id = fields.Many2one('res.partner', string='Customer',required=True,tracking=True,store=True)
     company_id = fields.Many2one('res.company', string='Company',
                                  default=lambda self: self.env.user.company_id, required=True)
     description = fields.Char(string='Description')
@@ -52,14 +52,18 @@ class RecurringSubscription(models.Model):
         'A Recurring Subscription with this name already exists!'
     )
 
-
+    @api.model_create_multi
     def create(self, vals_list):
+        print(vals_list)
+        print("demo", self.partner_id)
         """used for setting the sequence number"""
         for vals in vals_list:
-            if vals.get('order_id', 'New') == 'New':
-                vals['order_id'] = self.env['ir.sequence'].next_by_code('recurring.subscription')
+            if vals.get('order_id', _('New')) == _('New'):
+                vals['order_id'] = (self.env['ir.sequence'].next_by_code('recurring.subscription'))
 
         return super().create(vals_list)
+
+
 
 
     def action_confirm(self):
@@ -69,22 +73,6 @@ class RecurringSubscription(models.Model):
     def action_cancel(self):
         """used for setting the state to cancel"""
         self.write({'state': 'cancel'})
-
-    @api.onchange('establishment_id')
-    def _onchange_establishment_id(self):
-        """Find partner by establishment id"""
-
-        if self.establishment_id:
-            partner = (self.env['res.partner'].
-                       search([('establishment_id', '=', self.establishment_id)], limit=1))
-            if not partner:
-                raise ValidationError("not valid ")
-
-            else:
-                self.write({'customer_id': partner.id})
-
-
-
 
     @api.constrains('establishment_id')
     def _check_establishment_id(self):
@@ -97,9 +85,28 @@ class RecurringSubscription(models.Model):
                         "Please enter a valid establishment id with correct format"
                     )
                 partner = (self.env['res.partner'].
-                           search([('establishment_id', '=',record.establishment_id)], limit=1))
+                           search([('establishment_id', '=', record.establishment_id)], limit=1))
                 if not partner:
                     raise ValidationError("Please give a valid establishment id")
+
+    @api.onchange('establishment_id')
+    def _onchange_establishment_id(self):
+        """Find partner by establishment id"""
+        for record in self:
+            if record.establishment_id:
+                partner = self.env['res.partner'].search([('establishment_id', '=', record.establishment_id)])
+                print("jdsf",partner)
+                if partner:
+                    print('hello')
+                    record.partner_id = partner.id
+                    print(record.partner_id)
+
+
+
+
+
+
+
 
 
 

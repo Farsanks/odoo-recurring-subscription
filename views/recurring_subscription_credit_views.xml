@@ -5,6 +5,7 @@
         <field name="model">recurring.subscription.credit</field>
         <field name="arch" type="xml">
             <list string="Recurring Subscription Credits">
+                <field name="id" string="Credit Reference"/>
                 <field name="recurring_subscription_id"/>
                 <field name="partner_id"/>
                 <field name="credit_amount"/>

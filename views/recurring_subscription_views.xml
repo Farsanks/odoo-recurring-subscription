@@ -20,8 +20,8 @@
                         name="date"
                         domain="[('date','!=',False)]"/>
                 <filter string="By Customer"
-                        name="customer_id"
-                        domain="[('customer_id','!=',False)]"/>
+                        name="partner_id"
+                        domain="[('partner_id','!=',False)]"/>
                 <filter string="By State"
                         name="state"
                         domain="[('state','in',['confirm','done'])]"/>
@@ -54,7 +54,7 @@
                 <field name="establishment_id"/>
                 <field name="date"/>
                 <field name="due_date"/>
-                <field name="customer_id"/>
+                <field name="partner_id"/>
                 <field name="product_id"/>
                 <field name="recurring_amount"/>
                 <field name="state"/>
@@ -104,7 +104,7 @@
 
                     <group>
                         <group string="Subscription Details">
-                            <field name="customer_id" readonly="1" />
+                            <field name="partner_id" readonly="1" force_save="1"/>
                             <field name="company_id"/>
 
                             <field name="product_id" />
@@ -140,10 +140,6 @@
                                 <field name="terms_and_conditions" nolabel="1"/>
                             </group>
                         </page>
-
-
-
-
 
                     </notebook>
 
