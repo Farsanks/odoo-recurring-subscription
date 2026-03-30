@@ -25,19 +25,19 @@ class ResPartner(models.Model):
                         "Establishment Id must contain 3 alphabets, 3 numbers and 2 special characters."
                     )
 
-    # @api.model_create_multi
-    # def create(self, vals_list):
-    #     print(vals_list)
-    #     """Auto create a unique Account ID for each partner"""
-    #     records = super().create(vals_list)
-    #     for record in records:
-    #         account_id_value = self._generate_account_id()
-    #         account = self.env['partner.account.id'].create({
-    #             'account_id': account_id_value,
-    #             'partner_id': record.id,
-    #         })
-    #         record.write({'account_id': account.id})
-    #     return records
+    @api.model_create_multi
+    def create(self, vals_list):
+        print(vals_list)
+        """Auto create a unique Account ID for each partner"""
+        records = super().create(vals_list)
+        for record in records:
+            account_id_value = self._generate_account_id()
+            account = self.env['partner.account.id'].create({
+                'account_id': account_id_value,
+                'partner_id': record.id,
+            })
+            record.write({'account_id': account.id})
+        return records
 
     def _generate_account_id(self):
         """Generate a unique Account ID for each partner"""

@@ -13,6 +13,7 @@ class BillingSchedule(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'name'
 
+
     name = fields.Char(string='Name')
     simulation = fields.Boolean(string='Simulation', tracking=True)
     period = fields.Date(string='Period', tracking=True)
@@ -136,7 +137,7 @@ class BillingSchedule(models.Model):
         """used to compute the invoice count"""
         for record in self:
             invoices = self.env['account.move'].search([('partner_id', 'in',
-                                                         record.recurring_subscription_ids.mapped('customer_id').ids),
+                                                         record.recurring_subscription_ids.mapped('partner_id').ids),
                                                         ('move_type', '=', 'out_invoice')])
             record.update({'invoice_count': len(invoices)})
 
@@ -149,7 +150,7 @@ class BillingSchedule(models.Model):
             'res_model': 'account.move',
             'view_mode': 'list,form',
             'domain': [
-                ('partner_id', 'in', self.recurring_subscription_ids.mapped('customer_id').ids),
+                ('partner_id', 'in', self.recurring_subscription_ids.mapped('partner_id').ids),
                 ('move_type', '=', 'out_invoice'),
             ],
         }

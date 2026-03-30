@@ -79,7 +79,7 @@
                     />
 
 
-                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,done,cancel"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,done,cancel" options="{'clickable': '1'}"/>
                 </header>
                 <sheet>
                     <group>

@@ -9,17 +9,17 @@
     'website': 'https://www.farsan.com/',
     'category': 'Subscription',
 
-    'depends': ['base', 'product','mail','contacts','crm','account'],
+    'depends': ['base', 'product','mail','contacts','crm','account','base_automation'],
 
     'data': [
         'data/sequence_data.xml',
+        'data/automated_action_data.xml',
         'security/ir.model.access.csv',
         'views/recurring_subscription_views.xml',
         'views/recurring_subscription_credit_views.xml',
         'views/billing_schedule_views.xml',
         'views/res_partner_views.xml',
         'views/crm_lead_views.xml',
-
         'views/menus.xml',
     ],
 
