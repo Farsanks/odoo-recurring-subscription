@@ -13,6 +13,7 @@
 
     'data': [
         'data/sequence_data.xml',
+        'data/cron_data.xml',
         'data/automated_action_data.xml',
         'security/ir.model.access.csv',
         'views/recurring_subscription_views.xml',

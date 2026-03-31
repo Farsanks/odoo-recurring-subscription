@@ -77,9 +77,13 @@
                             status="draft,confirm" class="btn-danger"
                             invisible="state not in ['draft', 'confirm']"
                     />
+                    <button name="action_done" string="Done" type="object"
+                            status="draft,confirm" class="btn-primary"
+                            invisible="state not in ['draft', 'confirm']"
+                    />
 
 
-                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,done,cancel" options="{'clickable': '1'}"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,done,cancel"/>
                 </header>
                 <sheet>
                     <group>
@@ -101,7 +105,7 @@
 
 
                     </group>
-
+<widget name="web_ribbon" title="Done" bg_color="text-bg-success" invisible="state  not in ('done')"/>
                     <group>
                         <group string="Subscription Details">
                             <field name="partner_id" readonly="1" force_save="1"/>

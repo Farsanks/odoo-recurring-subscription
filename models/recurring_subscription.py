@@ -74,6 +74,10 @@ class RecurringSubscription(models.Model):
         """used for setting the state to cancel"""
         self.write({'state': 'cancel'})
 
+    def action_done(self):
+        """used for setting the state to done"""
+        self.write({'state': 'done'})
+
     @api.constrains('establishment_id')
     def _check_establishment_id(self):
         """used to validate the establishment id"""
@@ -95,11 +99,63 @@ class RecurringSubscription(models.Model):
         for record in self:
             if record.establishment_id:
                 partner = self.env['res.partner'].search([('establishment_id', '=', record.establishment_id)])
-                print("jdsf",partner)
                 if partner:
-                    print('hello')
                     record.partner_id = partner.id
-                    print(record.partner_id)
+
+    @api.model
+    def action_auto_invoice(self):
+        """Auto create invoices"""
+        today = fields.Date.today()
+        credit_product = self.env['product.product'].search([('default_code','=','SubscriptionCredit')],limit=1)
+
+        subscriptions = self.search([('due_date', '<', today),
+                                     ('state','=','confirm')])
+        for subscription in subscriptions:
+            invoice = self.env['account.move'].create({
+                'move_type': 'out_invoice',
+                'partner_id': subscription.partner_id.id,
+                'invoice_line_ids': [
+                    fields.Command.create({
+                        'product_id': subscription.product_id.id,
+                        'quantity': 1,
+                        'price_unit':subscription.recurring_amount,
+                    })
+                ]
+
+            })
+
+            credit = self.env['recurring.subscription.credit'].search(
+                [('recurring_subscription_id', '=', subscription.id),
+                 ('state', '=', 'confirmed'), ('credit_amount', '=', subscription.recurring_amount), ],
+                order='id asc', limit=1)
+
+            if not credit:
+                credit = self.env['recurring.subscription.credit'].search(
+                    [('recurring_subscription_id', '=', subscription.id),
+                     ('state', '=', 'confirmed'), ], order='id asc', limit=1)
+
+            if credit:
+                invoice.write({
+                    'invoice_line_ids': [
+                        fields.Command.create({
+                            'product_id': credit_product.id,
+                            'quantity': 1,
+                            'price_unit': -credit.credit_amount,
+                            'name': f'Credit Applied-{credit.recurring_subscription_id.name}'
+                            f'(credit ID: {credit.id} | ' f'Amount:{credit.credit_amount} '
+                                    f'| ' f'Created: {credit.create_date.strftime("%Y-%m-%d %H:%M:%S") 
+                            if credit.create_date else ''})',
+                        })
+                    ]
+                })
+
+
+
+
+
+
+
+
 
 
 

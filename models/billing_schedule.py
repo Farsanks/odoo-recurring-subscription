@@ -87,7 +87,6 @@ class BillingSchedule(models.Model):
 
     def action_manual_billing(self):
         """used for creating the invoice"""
-        print("Hi")
         self.ensure_one()
         credit_product = self.env['product.product'].search([('default_code','=','SubscriptionCredit')],limit=1)
         if not credit_product:

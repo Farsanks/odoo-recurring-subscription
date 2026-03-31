@@ -7,9 +7,9 @@
             <field name="subject">Your Recurring subscription</field>
             <field name="email_to">{{object.partner_id.email}}</field>
             <field name="body_html" type="html">
-                <p>Hi<t t-out="object.partner_id.name"/>,
+                <p>Hi<t t-out=" object.partner_id.name"/>,
                 </p>
-                <p>This is a reminder for your subscription</p>
+                <p>This is a reminder for your subscription<t t-out=" object.name"/>,</p>
                 <p>
                     <strong>Please pay the amount or renew.</strong>
                 </p>
@@ -28,6 +28,10 @@ template = env.ref('recurring_subscription.email_template_subscription_done')
 for record in records:
     if record.partner_id.email:
         template.send_mail(record.id,force_send=True)
+        record.message_post(
+                body=f'Email sent to {record.partner_id.name} ({record.partner_id.email}) -Subscription {record.name} is Done',
+                message_type='email',
+                subtype_xmlid='mail.mt_note',)
             </field>
         </record>
 
